@@ -1,0 +1,21 @@
+[package]
+name = "magic-numbers"
+description = "Classify numbers using generics"
+authors = ["Jacob Greenfield <jacob@jacobgreenfield.me>", "The Rust Project Developers"]
+license = "MIT"
+version = "0.1.0"
+edition = "2018"
+readme = "README.md"
+homepage = "https://github.com/Coder-256/magic-numbers"
+repository = "https://github.com/Coder-256/magic-numbers"
+documentation = "https://docs.rs/magic-numbers"
+keywords = ["mathematics", "numerics"]
+categories = ["algorithms", "science", "no-std"]
+exclude = ["/ci/*", "/.travis.yml"]
+
+[badges]
+travis-ci = { repository = "Coder-256/magic-numbers", branch = "master" }
+
+[features]
+default = ["std"]
+std = []
