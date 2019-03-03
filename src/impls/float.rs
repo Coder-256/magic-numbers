@@ -12,6 +12,13 @@ macro_rules! float_impl {
             }
         }
 
+        #[cfg(feature = "std")]
+        impl Atan2 for $t {
+            forward! {
+                Self::atan2(self, other: Self) -> Self;
+            }
+        }
+
         impl Bounded for $t {
             constant! {
                 min_value() -> $t::MIN;
@@ -80,6 +87,11 @@ macro_rules! float_impl {
                 Self::acosh(self) -> Self;
                 Self::atanh(self) -> Self;
             }
+
+            fn sinh_cosh(self) -> (Self, Self) {
+                // TODO: Implement this better if possible?
+                (self.sinh(), self.cosh())
+            }
         }
 
         impl Inv for $t {
@@ -103,7 +115,7 @@ macro_rules! float_impl {
         impl MulAdd for $t {
             type Output = Self;
             forward! {
-                Self::mul_add(self, a: Self, b: Self) -> Self;
+                Self::mul_add(self, a: Self, b: Self) -> Self::Output;
             }
         }
 
@@ -127,14 +139,23 @@ macro_rules! float_impl {
 
         #[cfg(feature = "std")]
         impl PNorm for $t {
-            type NormOutput = $t;
+            type Output = Self;
 
-            fn pnorm(self, p: NonZeroU8) -> Self::NormOutput {
+            fn pnorm(self, p: NonZeroU8) -> Self::Output {
                 if p.get() % 2 == 0 {
                     self.abs()
                 } else {
                     self
                 }
+            }
+        }
+
+        #[cfg(feature = "std")]
+        impl EuclideanNorm for $t {
+            type Output = Self;
+
+            forward! {
+                Self::abs(self) -> Self::Output;
             }
         }
 
@@ -170,7 +191,6 @@ macro_rules! float_impl {
                 Self::asin(self) -> Self;
                 Self::acos(self) -> Self;
                 Self::atan(self) -> Self;
-                Self::atan2(self, other: Self) -> Self;
                 Self::sin_cos(self) -> (Self, Self);
             }
         }

@@ -40,6 +40,10 @@ The `magic-numbers` crate uses Rust 2018.
 
 # Acknowledgements
 
-This project started out as a fork of the [`num-traits` crate
-](https://github.com/rust-num/num-traits). Thanks to everybody who contributed
-there! `magic-numbers` would have never existed without their help.
+This project includes code from the following projects:
+
+- [`num-traits`](https://github.com/rust-num/num-traits)
+- [`num-complex`](https://github.com/rust-num/num-complex)s
+
+Thanks to everybody who contributed to these projects! `magic-numbers` would
+have never existed without their help.

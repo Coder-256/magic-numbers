@@ -3,6 +3,14 @@ use core::num::{NonZeroU8, ParseIntError};
 
 macro_rules! signed {
     ($t:ty) => {
+        impl EuclideanNorm for $t {
+            type Output = Self;
+
+            forward! {
+                Self::abs(self) -> Self::Output;
+            }
+        }
+
         impl Normalize for $t {
             fn normalize(self) -> Self {
                 self.signum()
@@ -10,11 +18,11 @@ macro_rules! signed {
         }
 
         impl PNorm for $t {
-            type NormOutput = $t;
+            type Output = Self;
 
-            fn pnorm(self, p: NonZeroU8) -> Self::NormOutput {
-                if p.get() % 2 == 0 && self.is_negative() {
-                    -self
+            fn pnorm(self, p: NonZeroU8) -> Self::Output {
+                if p.get() % 2 == 0 {
+                    self.abs()
                 } else {
                     self
                 }
@@ -35,9 +43,9 @@ macro_rules! unsigned {
         }
 
         impl PNorm for $t {
-            type NormOutput = $t;
+            type Output = Self;
 
-            fn pnorm(self, _: NonZeroU8) -> Self::NormOutput {
+            fn pnorm(self, _: NonZeroU8) -> Self::Output {
                 self
             }
         }
@@ -100,7 +108,7 @@ macro_rules! int_shared {
 
         impl MulAdd for $t {
             type Output = Self;
-            fn mul_add(self, a: Self, b: Self) -> Self {
+            fn mul_add(self, a: Self, b: Self) -> Self::Output {
                 (self * a) + b
             }
         }
