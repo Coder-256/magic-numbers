@@ -1,8 +1,5 @@
 /// Bitwise operations (beyond `core::ops`)
 pub trait Bitwise {
-    /// A sequence of bytes used for the binary representation of `self`.
-    type Bytes;
-
     /// Returns the number of ones in the binary representation of `self`.
     fn count_ones(self) -> u32;
 
@@ -48,6 +45,12 @@ pub trait Bitwise {
     ///
     /// This is bitwise equivalent to unsigned `Shr`.
     fn unsigned_shr(self, n: u32) -> Self;
+}
+
+/// Bytewise operations (beyond `core::ops`)
+pub trait Bytewise {
+    /// A sequence of bytes used for the binary representation of `self`.
+    type Bytes;
 
     /// Reverses the byte order of the integer.
     fn swap_bytes(self) -> Self;
@@ -71,9 +74,6 @@ pub trait Bitwise {
     ///
     /// On little endian this is a no-op. On big endian the bytes are swapped.
     fn to_le(self) -> Self;
-
-    /// Raises self to the power of `exp`, using exponentiation by squaring.
-    fn pow(self, exp: u32) -> Self;
 
     /// Return the memory representation of this integer as a byte array in
     /// big-endian (network) byte order.

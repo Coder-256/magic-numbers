@@ -47,7 +47,6 @@ macro_rules! unsigned {
 macro_rules! int_shared {
     ($t:ty, $s:ty, $u:ty, $c:expr) => {
         impl Bitwise for $t {
-            type Bytes = [u8; $c];
             forward! {
                 Self::count_ones(self) -> u32;
                 Self::count_zeros(self) -> u32;
@@ -55,18 +54,6 @@ macro_rules! int_shared {
                 Self::trailing_zeros(self) -> u32;
                 Self::rotate_left(self, n: u32) -> Self;
                 Self::rotate_right(self, n: u32) -> Self;
-                Self::swap_bytes(self) -> Self;
-                Self::from_be(x: Self) -> Self;
-                Self::from_le(x: Self) -> Self;
-                Self::to_be(self) -> Self;
-                Self::to_le(self) -> Self;
-                Self::pow(self, exp: u32) -> Self;
-                Self::to_be_bytes(self) -> Self::Bytes;
-                Self::to_le_bytes(self) -> Self::Bytes;
-                Self::to_ne_bytes(self) -> Self::Bytes;
-                Self::from_be_bytes(bytes: Self::Bytes) -> Self;
-                Self::from_le_bytes(bytes: Self::Bytes) -> Self;
-                Self::from_ne_bytes(bytes: Self::Bytes) -> Self;
             }
 
             fn signed_shl(self, n: u32) -> Self {
@@ -80,6 +67,24 @@ macro_rules! int_shared {
             }
             fn unsigned_shr(self, n: u32) -> Self {
                 ((self as $u) >> n) as $t
+            }
+        }
+
+        impl Bytewise for $t {
+            type Bytes = [u8; $c];
+
+            forward! {
+                Self::swap_bytes(self) -> Self;
+                Self::from_be(x: Self) -> Self;
+                Self::from_le(x: Self) -> Self;
+                Self::to_be(self) -> Self;
+                Self::to_le(self) -> Self;
+                Self::to_be_bytes(self) -> Self::Bytes;
+                Self::to_le_bytes(self) -> Self::Bytes;
+                Self::to_ne_bytes(self) -> Self::Bytes;
+                Self::from_be_bytes(bytes: Self::Bytes) -> Self;
+                Self::from_le_bytes(bytes: Self::Bytes) -> Self;
+                Self::from_ne_bytes(bytes: Self::Bytes) -> Self;
             }
         }
 
