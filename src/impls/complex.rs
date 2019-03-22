@@ -209,6 +209,18 @@ where
 // Trait impls
 // -----------
 
+impl<T: ComplexPart> AbsoluteValue for Complex<T>
+where
+    T: Exponential,
+{
+    type Output = T;
+
+    /// This should be equal to the square root of `norm_sqr()`.
+    fn abs(self) -> T {
+        self.re.hypot(self.im)
+    }
+}
+
 impl<T: ComplexPart> Add<Self> for Complex<T> {
     type Output = Self;
 
@@ -272,18 +284,6 @@ impl<T: ComplexPart> DivAssign<T> for Complex<T> {
     fn div_assign(&mut self, other: T) {
         self.re /= other;
         self.im /= other;
-    }
-}
-
-impl<T: ComplexPart> AbsoluteValue for Complex<T>
-where
-    T: Exponential,
-{
-    type Output = T;
-
-    /// This should be equal to the square root of `norm_sqr()`.
-    fn abs(self) -> T {
-        self.re.hypot(self.im)
     }
 }
 

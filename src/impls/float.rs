@@ -5,6 +5,15 @@ use core::{f32, f64, mem, num::FpCategory};
 
 macro_rules! float_impl {
     ($t:ident, $decode:ident, $signal:expr) => {
+        #[cfg(feature = "std")]
+        impl AbsoluteValue for $t {
+            type Output = Self;
+
+            forward! {
+                Self::abs(self) -> Self::Output;
+            }
+        }
+
         impl Angles for $t {
             forward! {
                 Self::to_degrees(self) -> Self;
@@ -147,15 +156,6 @@ macro_rules! float_impl {
                 } else {
                     self
                 }
-            }
-        }
-
-        #[cfg(feature = "std")]
-        impl AbsoluteValue for $t {
-            type Output = Self;
-
-            forward! {
-                Self::abs(self) -> Self::Output;
             }
         }
 
