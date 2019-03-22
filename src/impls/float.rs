@@ -151,7 +151,7 @@ macro_rules! float_impl {
         }
 
         #[cfg(feature = "std")]
-        impl EuclideanNorm for $t {
+        impl AbsoluteValue for $t {
             type Output = Self;
 
             forward! {

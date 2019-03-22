@@ -8,12 +8,12 @@ pub trait PNorm {
     fn pnorm(self, p: NonZeroU8) -> Self::Output;
 }
 
-/// Calculate the euclidean norm (absolute value) of a number.
-pub trait EuclideanNorm {
+/// Calculate the absolute value of a number.
+pub trait AbsoluteValue {
     type Output;
 
-    /// Calculate the Euclidean norm of a number. Also known as the `L^2` norm,
-    /// magnitude, absolute value, modulus, or just "norm". This is the same
-    /// as `n.pnorm(2)` but may be implemented more efficiently.
+    /// Calculate the absolute value (Euclidean norm) of a number. Also known as
+    /// the `L^2` norm, magnitude, absolute value, modulus, or just "norm". This
+    /// is the same as `n.pnorm(2)` but may be implemented more efficiently.
     fn abs(self) -> Self::Output;
 }

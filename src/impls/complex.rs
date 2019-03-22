@@ -275,7 +275,7 @@ impl<T: ComplexPart> DivAssign<T> for Complex<T> {
     }
 }
 
-impl<T: ComplexPart> EuclideanNorm for Complex<T>
+impl<T: ComplexPart> AbsoluteValue for Complex<T>
 where
     T: Exponential,
 {

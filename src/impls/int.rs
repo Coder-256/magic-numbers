@@ -3,7 +3,7 @@ use core::num::{NonZeroU8, ParseIntError};
 
 macro_rules! signed {
     ($t:ty) => {
-        impl EuclideanNorm for $t {
+        impl AbsoluteValue for $t {
             type Output = Self;
 
             forward! {
