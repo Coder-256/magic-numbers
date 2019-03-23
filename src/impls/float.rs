@@ -5,10 +5,26 @@ use core::{f32, f64, mem, num::FpCategory};
 
 macro_rules! float_impl {
     ($t:ident, $decode:ident, $signal:expr) => {
+        #[cfg(feature = "std")]
+        impl AbsoluteValue for $t {
+            type Output = Self;
+
+            forward! {
+                Self::abs(self) -> Self::Output;
+            }
+        }
+
         impl Angles for $t {
             forward! {
                 Self::to_degrees(self) -> Self;
                 Self::to_radians(self) -> Self;
+            }
+        }
+
+        #[cfg(feature = "std")]
+        impl Atan2 for $t {
+            forward! {
+                Self::atan2(self, other: Self) -> Self;
             }
         }
 
@@ -80,6 +96,11 @@ macro_rules! float_impl {
                 Self::acosh(self) -> Self;
                 Self::atanh(self) -> Self;
             }
+
+            fn sinh_cosh(self) -> (Self, Self) {
+                // TODO: Implement this better if possible?
+                (self.sinh(), self.cosh())
+            }
         }
 
         impl Inv for $t {
@@ -103,7 +124,7 @@ macro_rules! float_impl {
         impl MulAdd for $t {
             type Output = Self;
             forward! {
-                Self::mul_add(self, a: Self, b: Self) -> Self;
+                Self::mul_add(self, a: Self, b: Self) -> Self::Output;
             }
         }
 
@@ -127,9 +148,9 @@ macro_rules! float_impl {
 
         #[cfg(feature = "std")]
         impl PNorm for $t {
-            type NormOutput = $t;
+            type Output = Self;
 
-            fn pnorm(self, p: NonZeroU8) -> Self::NormOutput {
+            fn pnorm(self, p: NonZeroU8) -> Self::Output {
                 if p.get() % 2 == 0 {
                     self.abs()
                 } else {
@@ -166,12 +187,11 @@ macro_rules! float_impl {
             forward! {
                 Self::sin(self) -> Self;
                 Self::cos(self) -> Self;
+                Self::sin_cos(self) -> (Self, Self);
                 Self::tan(self) -> Self;
                 Self::asin(self) -> Self;
                 Self::acos(self) -> Self;
                 Self::atan(self) -> Self;
-                Self::atan2(self, other: Self) -> Self;
-                Self::sin_cos(self) -> (Self, Self);
             }
         }
 
