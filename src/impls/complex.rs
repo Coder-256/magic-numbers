@@ -13,12 +13,14 @@ pub trait ComplexPart:
     + Zero
     + Add<Output = Self>
     + Div<Output = Self>
+    + MulAdd<Output = Self>
     + Mul<Output = Self>
     + Neg<Output = Self>
     // + Rem<Output = Self>
     + Sub<Output = Self>
     + AddAssign
     + DivAssign
+    + MulAddAssign
     + MulAssign
     // + RemAssign
     + SubAssign
@@ -33,11 +35,13 @@ impl<T> ComplexPart for T where
         + Zero
         + Add<Output = Self>
         + Div<Output = Self>
+        + MulAdd<Output = Self>
         + Mul<Output = Self>
         + Neg<Output = Self>
         + Sub<Output = Self>
         + AddAssign
         + DivAssign
+        + MulAddAssign
         + MulAssign
         + SubAssign
 {
@@ -401,6 +405,76 @@ impl<T: ComplexPart> Mul<T> for Complex<T> {
 
     fn mul(self, other: T) -> Self::Output {
         Complex::new(self.re * other, self.im * other)
+    }
+}
+
+impl<T: ComplexPart> MulAdd<Self, Self> for Complex<T> {
+    type Output = Self;
+
+    fn mul_add(self, a: Self, b: Self) -> Self::Output {
+        // formula: (a + bi)(c + di) + (e + fi) = (ac - bd + e) + i(ad + bc + f)
+        Complex::new(
+            self.re.mul_add(a.re, self.im.mul_add(-a.im, b.re)),
+            self.im.mul_add(a.re, self.re.mul_add(a.im, b.im)),
+        )
+    }
+}
+
+impl<T: ComplexPart> MulAdd<Self, T> for Complex<T> {
+    type Output = Self;
+
+    fn mul_add(self, a: Self, b: T) -> Self::Output {
+        // formula: (a + bi)(c + di) + e = ac - bd + e + i(ad + bc)
+        Complex::new(
+            self.re.mul_add(a.re, self.im.mul_add(-a.im, b)),
+            self.im.mul_add(a.re, self.re * a.im),
+        )
+    }
+}
+
+impl<T: ComplexPart> MulAdd<T, Self> for Complex<T> {
+    type Output = Self;
+
+    fn mul_add(self, a: T, b: Self) -> Self::Output {
+        Complex::new(self.re.mul_add(a, b.re), self.im.mul_add(a, b.im))
+    }
+}
+
+impl<T: ComplexPart> MulAdd<T, T> for Complex<T> {
+    type Output = Self;
+
+    fn mul_add(self, a: T, b: T) -> Self::Output {
+        Complex::new(self.re.mul_add(a, b), self.im * a)
+    }
+}
+
+impl<T: ComplexPart> MulAddAssign<Self, Self> for Complex<T> {
+    fn mul_add_assign(&mut self, a: Self, b: Self) {
+        // formula: (a + bi)(c + di) + (e + fi) = (ac - bd + e) + i(ad + bc + f)
+        self.re.mul_add_assign(a.re, self.im.mul_add(-a.im, b.re));
+        self.im.mul_add_assign(a.re, self.re.mul_add(a.im, b.im));
+    }
+}
+
+impl<T: ComplexPart> MulAddAssign<Self, T> for Complex<T> {
+    fn mul_add_assign(&mut self, a: Self, b: T) {
+        // formula: (a + bi)(c + di) + e = ac - bd + e + i(ad + bc)
+        self.re.mul_add_assign(a.re, self.im.mul_add(-a.im, b));
+        self.im.mul_add_assign(a.re, self.re * a.im);
+    }
+}
+
+impl<T: ComplexPart> MulAddAssign<T, Self> for Complex<T> {
+    fn mul_add_assign(&mut self, a: T, b: Self) {
+        self.re.mul_add_assign(a, b.re);
+        self.im.mul_add_assign(a, b.im);
+    }
+}
+
+impl<T: ComplexPart> MulAddAssign<T, T> for Complex<T> {
+    fn mul_add_assign(&mut self, a: T, b: T) {
+        self.re.mul_add_assign(a, b);
+        self.im *= a;
     }
 }
 
