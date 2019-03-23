@@ -108,7 +108,7 @@ where
 
 impl<T: ComplexPart> Complex<T>
 where
-    T: Exponential + Atan2 + Trigonometric + Mul<Output = T>,
+    T: Exponential + Atan2 + Trigonometric,
 {
     /// Convert a polar representation into a complex number.
     pub fn from_polar(r: T, theta: T) -> Complex<T> {
@@ -297,7 +297,7 @@ impl<T: ComplexPart> From<T> for Complex<T> {
 
 impl<T: ComplexPart> Hyperbolic for Complex<T>
 where
-    T: Trigonometric + Hyperbolic + One + Mul + Add + Exponential + Atan2 + Logarithmic,
+    T: Trigonometric + Hyperbolic + Exponential + Atan2 + Logarithmic,
 {
     fn sinh(self) -> Self {
         // formula: sinh(a + bi) = sinh(a)cos(b) + i*cosh(a)sin(y)
@@ -382,10 +382,7 @@ impl<T: ComplexPart> Inv for Complex<T> {
     }
 }
 
-impl<T: ComplexPart> Mul<Self> for Complex<T>
-where
-    T: Mul<Output = T> + Sub<Output = T> + Add<Output = T>,
-{
+impl<T: ComplexPart> Mul<Self> for Complex<T> {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self::Output {
@@ -407,10 +404,7 @@ impl<T: ComplexPart> Mul<T> for Complex<T> {
     }
 }
 
-impl<T: ComplexPart> MulAssign<Self> for Complex<T>
-where
-    T: Mul<Output = T> + Sub<Output = T> + Add<Output = T>,
-{
+impl<T: ComplexPart> MulAssign<Self> for Complex<T> {
     fn mul_assign(&mut self, other: Self) {
         *self = *self * other;
     }
