@@ -6,6 +6,12 @@ pub trait Trigonometric {
     /// Computes the cosine of a number (in radians).
     fn cos(self) -> Self;
 
+    /// Simultaneously computes the sine and cosine of the number, `x`. Returns
+    /// `(sin(x), cos(x))`.
+    fn sin_cos(self) -> (Self, Self)
+    where
+        Self: Sized;
+
     /// Computes the tangent of a number (in radians).
     fn tan(self) -> Self;
 
@@ -21,12 +27,6 @@ pub trait Trigonometric {
     /// Computes the arctangent of a number. Return value is in radians in the
     /// range `[-π/2, π/2]`
     fn atan(self) -> Self;
-
-    /// Simultaneously computes the sine and cosine of the number, `x`. Returns
-    /// `(sin(x), cos(x))`.
-    fn sin_cos(self) -> (Self, Self)
-    where
-        Self: Sized;
 }
 
 /// The [`atan2`](https://en.wikipedia.org/wiki/Atan2) function.

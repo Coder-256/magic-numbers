@@ -6,6 +6,12 @@ pub trait Hyperbolic {
     /// Hyperbolic cosine.
     fn cosh(self) -> Self;
 
+    /// Simultaneously computes the hyperbolic sine and cosine of the number,
+    /// `x`. Returns `(sinh(x), cosh(x))`.
+    fn sinh_cosh(self) -> (Self, Self)
+    where
+        Self: Sized;
+
     /// Hyperbolic tangent.
     fn tanh(self) -> Self;
 
@@ -17,10 +23,4 @@ pub trait Hyperbolic {
 
     /// Inverse hyperbolic tangent.
     fn atanh(self) -> Self;
-
-    /// Simultaneously computes the hyperbolic sine and cosine of the number,
-    /// `x`. Returns `(sinh(x), cosh(x))`.
-    fn sinh_cosh(self) -> (Self, Self)
-    where
-        Self: Sized;
 }

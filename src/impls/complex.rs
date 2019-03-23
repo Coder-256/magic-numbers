@@ -1,3 +1,5 @@
+// TODO: Make everything here use `const fn`s once stabilized
+
 use crate::ops::*;
 use core::ops::*;
 
@@ -106,7 +108,7 @@ where
 
 impl<T: ComplexPart> Complex<T>
 where
-    T: Copy + Exponential + Atan2 + Trigonometric + Mul<Output = T>,
+    T: Exponential + Atan2 + Trigonometric + Mul<Output = T>,
 {
     /// Convert a polar representation into a complex number.
     pub fn from_polar(r: T, theta: T) -> Complex<T> {
@@ -293,6 +295,84 @@ impl<T: ComplexPart> From<T> for Complex<T> {
     }
 }
 
+impl<T: ComplexPart> Hyperbolic for Complex<T>
+where
+    T: Trigonometric + Hyperbolic + One + Mul + Add + Exponential + Atan2 + Logarithmic,
+{
+    fn sinh(self) -> Self {
+        // formula: sinh(a + bi) = sinh(a)cos(b) + i*cosh(a)sin(y)
+        let (re_sinh, re_cosh) = self.re.sinh_cosh();
+        let (im_sin, im_cos) = self.im.sin_cos();
+        Complex::new(re_sinh * im_cos, re_cosh * im_sin)
+    }
+
+    fn cosh(self) -> Self {
+        // formula: cosh(a + bi) = cosh(a)cos(b) + i*sinh(a)sin(y)
+        let (re_sinh, re_cosh) = self.re.sinh_cosh();
+        let (im_sin, im_cos) = self.im.sin_cos();
+        Complex::new(re_cosh * im_cos, re_sinh * im_sin)
+    }
+
+    fn sinh_cosh(self) -> (Self, Self) {
+        let (re_sinh, re_cosh) = self.re.sinh_cosh();
+        let (im_sin, im_cos) = self.im.sin_cos();
+        (
+            Complex::new(re_sinh * im_cos, re_cosh * im_sin),
+            Complex::new(re_cosh * im_cos, re_sinh * im_sin),
+        )
+    }
+
+    fn tanh(self) -> Self {
+        // formula, according to WolframAlpha somehow:
+        // tanh(a + bi) = (sinh(2a) + i*sin(2b))/(cosh(2a) + cos(2b))
+        let two_re = self.re + self.re;
+        let two_im = self.im + self.im;
+        let (two_re_sinh, two_re_cosh) = two_re.sinh_cosh();
+        let (two_im_sin, two_im_cos) = two_im.sin_cos();
+        let den = two_re_cosh + two_im_cos;
+        Complex::new(two_re_sinh / den, two_im_sin / den)
+    }
+
+    // FIXME: Is there a better way to implement these?
+    // https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions#Principal_values_in_the_complex_plane
+
+    /// Computes the principal value of the inverse hyperbolic sine of `self`.
+    ///
+    /// This function has two branch cuts:
+    ///
+    /// * `(−∞i, −i]`
+    /// * `[i, ∞i)`
+    fn asinh(self) -> Self {
+        // formula: asinh(z) = ln(z + sqrt(z^2 + 1))
+        (self + (self * self + Self::one()).sqrt()).ln()
+    }
+
+    /// Computes the principal value of the inverse hyperbolic cosine of `self`.
+    ///
+    /// This function has one branch cut:
+    ///
+    /// * `(−∞, 1]`
+    fn acosh(self) -> Self {
+        // formula: acosh(z) = ln(z + sqrt(z + 1)sqrt(z - 1))
+        let one = Self::one();
+        (self + (self + one).sqrt() * (self - one).sqrt()).ln()
+    }
+
+    /// Computes the principal value of the inverse hyperbolic tangent of
+    /// `self`.
+    ///
+    /// This function has two branch cuts:
+    ///
+    /// * `(−∞, −1]`
+    /// * `[1, ∞)`
+    fn atanh(self) -> Self {
+        // formula: atanh(z) = ln((1 + z)/(1 - z))/2
+        let one = Self::one();
+        let two = one + one;
+        ((one + self) / (one - self)).ln() / two
+    }
+}
+
 impl<T: ComplexPart> Inv for Complex<T> {
     /// Returns the reciprocal.
     fn inv(self) -> Self {
@@ -304,7 +384,7 @@ impl<T: ComplexPart> Inv for Complex<T> {
 
 impl<T: ComplexPart> Mul<Self> for Complex<T>
 where
-    T: Copy + Mul<Output = T> + Sub<Output = T> + Add<Output = T>,
+    T: Mul<Output = T> + Sub<Output = T> + Add<Output = T>,
 {
     type Output = Self;
 
@@ -329,7 +409,7 @@ impl<T: ComplexPart> Mul<T> for Complex<T> {
 
 impl<T: ComplexPart> MulAssign<Self> for Complex<T>
 where
-    T: Copy + Mul<Output = T> + Sub<Output = T> + Add<Output = T>,
+    T: Mul<Output = T> + Sub<Output = T> + Add<Output = T>,
 {
     fn mul_assign(&mut self, other: Self) {
         *self = *self * other;
@@ -394,7 +474,7 @@ where
 
 impl<T: ComplexPart> Power<Complex<T>> for Complex<T>
 where
-    T: Copy + Exponential + Atan2 + Trigonometric + Logarithmic + Power<T>,
+    T: Exponential + Atan2 + Trigonometric + Logarithmic + Power<T>,
 {
     /// Raises `self` to a complex power.
     fn pow(self, exp: Complex<T>) -> Complex<T> {
@@ -450,9 +530,8 @@ impl<T: ComplexPart> SubAssign<T> for Complex<T> {
 
 impl<T: ComplexPart> Trigonometric for Complex<T>
 where
-    T: Copy + Trigonometric + Hyperbolic + Exponential + Atan2 + Logarithmic + FloatCore,
+    T: Trigonometric + Hyperbolic + Exponential + Atan2 + Logarithmic + FloatCore,
 {
-    /// Computes the sine of `self`.
     fn sin(self) -> Self {
         // formula: sin(a + bi) = sin(a)cosh(b) + i*cos(a)sinh(b)
         let (re_sin, re_cos) = self.re.sin_cos();
@@ -460,7 +539,6 @@ where
         Complex::new(re_sin * im_cosh, re_cos * im_sinh)
     }
 
-    /// Computes the cosine of `self`.
     fn cos(self) -> Self {
         // formula: cos(a + bi) = cos(a)cosh(b) - i*sin(a)sinh(b)
         let (re_sin, re_cos) = self.re.sin_cos();
@@ -468,7 +546,19 @@ where
         Complex::new(re_cos * im_cosh, -re_sin * im_sinh)
     }
 
-    /// Computes the tangent of `self`.
+    fn sin_cos(self) -> (Self, Self) {
+        // formula: sin(a + bi) = sin(a)cosh(b) + i*cos(a)sinh(b)
+        // formula: cos(a + bi) = cos(a)cosh(b) - i*sin(a)sinh(b)
+
+        let (re_sin, re_cos) = self.re.sin_cos();
+        let (im_sinh, im_cosh) = self.im.sinh_cosh();
+
+        (
+            Complex::new(re_sin * im_cosh, re_cos * im_sinh),
+            Complex::new(re_cos * im_cosh, -re_sin * im_cosh),
+        )
+    }
+
     fn tan(self) -> Self {
         // formula: tan(a + bi) = (sin(2a) + i*sinh(2b))/(cos(2a) + cosh(2b))
         let (two_re, two_im) = (self.re + self.re, self.im + self.im);
@@ -518,7 +608,6 @@ where
         // formula: arctan(z) = (ln(1+iz) - ln(1-iz))/(2i)
         let i = Complex::<T>::i();
         let one = Complex::<T>::one();
-        let two = one + one;
         if self.re.is_zero() {
             if self.im.is_one() {
                 return Complex::new(T::zero(), T::infinity());
@@ -526,20 +615,7 @@ where
                 return Complex::new(T::zero(), T::neg_infinity());
             }
         }
-        ((one + i * self).ln() - (one - i * self).ln()) / (two * i)
-    }
-
-    fn sin_cos(self) -> (Self, Self) {
-        // formula: sin(a + bi) = sin(a)cosh(b) + i*cos(a)sinh(b)
-        // formula: cos(a + bi) = cos(a)cosh(b) - i*sin(a)sinh(b)
-
-        let (re_sin, re_cos) = self.re.sin_cos();
-        let (im_sinh, im_cosh) = self.im.sinh_cosh();
-
-        (
-            Complex::new(re_sin * im_cosh, re_cos * im_sinh),
-            Complex::new(re_cos * im_cosh, -re_sin * im_cosh),
-        )
+        ((one + i * self).ln() - (one - i * self).ln()) / (i + i)
     }
 }
 

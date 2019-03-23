@@ -187,11 +187,11 @@ macro_rules! float_impl {
             forward! {
                 Self::sin(self) -> Self;
                 Self::cos(self) -> Self;
+                Self::sin_cos(self) -> (Self, Self);
                 Self::tan(self) -> Self;
                 Self::asin(self) -> Self;
                 Self::acos(self) -> Self;
                 Self::atan(self) -> Self;
-                Self::sin_cos(self) -> (Self, Self);
             }
         }
 
